@@ -12,21 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package healthcheck
+package checks_test
 
 import (
 	"net"
 	"testing"
 	"time"
+
+	"github.com/karolhrdina/healthcheck/checks"
 )
 
 func TestTimeout(t *testing.T) {
-	tooSlow := Timeout(func() error {
+	tooSlow := checks.Timeout(func() error {
 		time.Sleep(10 * time.Millisecond)
 		return nil
 	}, 1*time.Millisecond)
 	err := tooSlow()
-	if _, isTimeoutError := err.(timeoutError); !isTimeoutError {
+	if _, isTimeoutError := err.(checks.TimeoutError); !isTimeoutError {
 		t.Errorf("expected a TimeoutError, got %v", err)
 	}
 
@@ -38,7 +40,7 @@ func TestTimeout(t *testing.T) {
 		t.Errorf("expected Temporary() to be true, got %v", err)
 	}
 
-	notTooSlow := Timeout(func() error {
+	notTooSlow := checks.Timeout(func() error {
 		time.Sleep(1 * time.Millisecond)
 		return nil
 	}, 10*time.Millisecond)

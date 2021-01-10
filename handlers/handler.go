@@ -12,27 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package healthcheck
+package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"sync"
+
+	"github.com/karolhrdina/healthcheck/checks"
 )
 
 // basicHandler is a basic Handler implementation.
 type basicHandler struct {
 	http.ServeMux
 	checksMutex     sync.RWMutex
-	livenessChecks  map[string]Check
-	readinessChecks map[string]Check
+	livenessChecks  map[string]checks.Check
+	readinessChecks map[string]checks.Check
 }
 
 // NewHandler creates a new basic Handler
 func NewHandler() Handler {
 	h := &basicHandler{
-		livenessChecks:  make(map[string]Check),
-		readinessChecks: make(map[string]Check),
+		livenessChecks:  make(map[string]checks.Check),
+		readinessChecks: make(map[string]checks.Check),
 	}
 	h.Handle("/live", http.HandlerFunc(h.LiveEndpoint))
 	h.Handle("/ready", http.HandlerFunc(h.ReadyEndpoint))
@@ -47,19 +50,31 @@ func (s *basicHandler) ReadyEndpoint(w http.ResponseWriter, r *http.Request) {
 	s.handle(w, r, s.readinessChecks, s.livenessChecks)
 }
 
-func (s *basicHandler) AddLivenessCheck(name string, check Check) {
+func (s *basicHandler) AddLivenessCheck(name string, check checks.Check) error {
 	s.checksMutex.Lock()
 	defer s.checksMutex.Unlock()
+
+	if _, ok := s.livenessChecks[name]; ok {
+		return fmt.Errorf("liveness check '%s' already exists", name)
+	}
+
 	s.livenessChecks[name] = check
+	return nil
 }
 
-func (s *basicHandler) AddReadinessCheck(name string, check Check) {
+func (s *basicHandler) AddReadinessCheck(name string, check checks.Check) error {
 	s.checksMutex.Lock()
 	defer s.checksMutex.Unlock()
+
+	if _, ok := s.readinessChecks[name]; ok {
+		return fmt.Errorf("readiness check '%s' already exists", name)
+	}
+
 	s.readinessChecks[name] = check
+	return nil
 }
 
-func (s *basicHandler) collectChecks(checks map[string]Check, resultsOut map[string]string, statusOut *int) {
+func (s *basicHandler) collectChecks(checks map[string]checks.Check, resultsOut map[string]string, statusOut *int) {
 	s.checksMutex.RLock()
 	defer s.checksMutex.RUnlock()
 	for name, check := range checks {
@@ -72,7 +87,7 @@ func (s *basicHandler) collectChecks(checks map[string]Check, resultsOut map[str
 	}
 }
 
-func (s *basicHandler) handle(w http.ResponseWriter, r *http.Request, checks ...map[string]Check) {
+func (s *basicHandler) handle(w http.ResponseWriter, r *http.Request, checks ...map[string]checks.Check) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -91,7 +106,7 @@ func (s *basicHandler) handle(w http.ResponseWriter, r *http.Request, checks ...
 	// unless ?full=1, return an empty body. Kubernetes only cares about the
 	// HTTP status code, so we won't waste bytes on the full body.
 	if r.URL.Query().Get("full") != "1" {
-		w.Write([]byte("{}\n"))
+		_, _ = w.Write([]byte("{}\n"))
 		return
 	}
 
@@ -99,5 +114,5 @@ func (s *basicHandler) handle(w http.ResponseWriter, r *http.Request, checks ...
 	// shouldn't really be possible since we're encoding a map[string]string).
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "    ")
-	encoder.Encode(checkResults)
+	_ = encoder.Encode(checkResults)
 }

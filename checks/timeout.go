@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package healthcheck
+package checks
 
 import (
 	"fmt"
@@ -20,19 +20,19 @@ import (
 )
 
 // TimeoutError is the error returned when a Timeout-wrapped Check takes too long
-type timeoutError time.Duration
+type TimeoutError time.Duration
 
-func (e timeoutError) Error() string {
+func (e TimeoutError) Error() string {
 	return fmt.Sprintf("timed out after %s", time.Duration(e).String())
 }
 
 // Timeout returns whether this error is a timeout (always true for timeoutError)
-func (e timeoutError) Timeout() bool {
+func (e TimeoutError) Timeout() bool {
 	return true
 }
 
 // Temporary returns whether this error is temporary (always true for timeoutError)
-func (e timeoutError) Temporary() bool {
+func (e TimeoutError) Temporary() bool {
 	return true
 }
 
@@ -46,7 +46,7 @@ func Timeout(check Check, timeout time.Duration) Check {
 		case err := <-c:
 			return err
 		case <-time.After(timeout):
-			return timeoutError(timeout)
+			return TimeoutError(timeout)
 		}
 	}
 }

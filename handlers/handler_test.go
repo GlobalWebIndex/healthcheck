@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package healthcheck
+package handlers_test
 
 import (
 	"errors"
@@ -21,9 +21,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/karolhrdina/healthcheck/handlers"
 )
 
 func TestNewHandler(t *testing.T) {
+	assert := assert.New(t)
+
 	tests := []struct {
 		name       string
 		method     string
@@ -123,30 +127,32 @@ func TestNewHandler(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := NewHandler()
+			h := handlers.NewHandler()
 
 			if !tt.live {
-				h.AddLivenessCheck("test-liveness-check", func() error {
+				err := h.AddLivenessCheck("test-liveness-check", func() error {
 					return errors.New("failed liveness check")
 				})
+				assert.NoError(err)
 			}
 
 			if !tt.ready {
-				h.AddReadinessCheck("test-readiness-check", func() error {
+				err := h.AddReadinessCheck("test-readiness-check", func() error {
 					return errors.New("failed readiness check")
 				})
+				assert.NoError(err)
 			}
 
 			req, err := http.NewRequest(tt.method, tt.path, nil)
-			assert.NoError(t, err)
+			assert.NoError(err)
 
 			reqStr := tt.method + " " + tt.path
 			rr := httptest.NewRecorder()
 			h.ServeHTTP(rr, req)
-			assert.Equal(t, tt.expect, rr.Code, "wrong code for %q", reqStr)
+			assert.Equal(tt.expect, rr.Code, "wrong code for %q", reqStr)
 
 			if tt.expectBody != "" {
-				assert.Equal(t, tt.expectBody, rr.Body.String(), "wrong body for %q", reqStr)
+				assert.Equal(tt.expectBody, rr.Body.String(), "wrong body for %q", reqStr)
 			}
 		})
 	}

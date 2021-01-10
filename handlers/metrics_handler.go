@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package healthcheck
+package handlers
 
 import (
 	"net/http"
 
+	"github.com/karolhrdina/healthcheck/checks"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -36,12 +37,12 @@ func NewMetricsHandler(registry prometheus.Registerer, namespace string) Handler
 	}
 }
 
-func (h *metricsHandler) AddLivenessCheck(name string, check Check) {
-	h.handler.AddLivenessCheck(name, h.wrap(name, check))
+func (h *metricsHandler) AddLivenessCheck(name string, check checks.Check) error {
+	return h.handler.AddLivenessCheck(name, h.wrap(name, check))
 }
 
-func (h *metricsHandler) AddReadinessCheck(name string, check Check) {
-	h.handler.AddReadinessCheck(name, h.wrap(name, check))
+func (h *metricsHandler) AddReadinessCheck(name string, check checks.Check) error {
+	return h.handler.AddReadinessCheck(name, h.wrap(name, check))
 }
 
 func (h *metricsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +57,7 @@ func (h *metricsHandler) ReadyEndpoint(w http.ResponseWriter, r *http.Request) {
 	h.handler.ReadyEndpoint(w, r)
 }
 
-func (h *metricsHandler) wrap(name string, check Check) Check {
+func (h *metricsHandler) wrap(name string, check checks.Check) checks.Check {
 	h.registry.MustRegister(prometheus.NewGaugeFunc(
 		prometheus.GaugeOpts{
 			Namespace:   h.namespace,

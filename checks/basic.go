@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package healthcheck
+package checks
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"net"
 	"net/http"
@@ -57,19 +56,6 @@ func HTTPGetCheck(url string, timeout time.Duration) Check {
 			return fmt.Errorf("returned status %d", resp.StatusCode)
 		}
 		return nil
-	}
-}
-
-// DatabasePingCheck returns a Check that validates connectivity to a
-// database/sql.DB using Ping().
-func DatabasePingCheck(database *sql.DB, timeout time.Duration) Check {
-	return func() error {
-		ctx, cancel := context.WithTimeout(context.Background(), timeout)
-		defer cancel()
-		if database == nil {
-			return fmt.Errorf("database is nil")
-		}
-		return database.PingContext(ctx)
 	}
 }
 

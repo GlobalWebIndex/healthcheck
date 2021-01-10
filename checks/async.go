@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package healthcheck
+package checks
 
 import (
 	"context"
@@ -64,10 +64,10 @@ func AsyncWithContext(ctx context.Context, check Check, interval time.Duration) 
 		update()
 
 		// loop forever or until the context is canceled
-		ticker := time.Tick(interval)
+		ticker := time.NewTicker(interval)
 		for {
 			select {
-			case <-ticker:
+			case <-ticker.C:
 				update()
 			case <-ctx.Done():
 				return

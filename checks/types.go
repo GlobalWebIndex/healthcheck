@@ -12,14 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/*
-Package healthcheck helps you implement Kubernetes liveness and readiness
-checks for your application. It supports synchronous and asynchronous
-(background) checks. It can optionally report each check's status as a set of
-Prometheus gauge metrics for cluster-wide monitoring and alerting. It even
-contains a handler with gRPC support.
+package checks
 
-It also includes a small library of generic checks for DNS, TCP, and HTTP
-reachability as well as Goroutine usage.
-*/
-package healthcheck
+// Check is a health/readiness check.
+type Check func() error

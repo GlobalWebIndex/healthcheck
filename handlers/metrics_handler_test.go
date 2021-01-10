@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package healthcheck
+package handlers_test
 
 import (
 	"fmt"
@@ -23,26 +23,32 @@ import (
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
-
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/karolhrdina/healthcheck/handlers"
 )
 
 func TestNewMetricsHandler(t *testing.T) {
-	handler := NewMetricsHandler(prometheus.DefaultRegisterer, "test")
+	assert := assert.New(t)
+
+	handler := handlers.NewMetricsHandler(prometheus.DefaultRegisterer, "test")
 
 	for _, check := range []string{"aaa", "bbb", "ccc"} {
-		handler.AddLivenessCheck(check, func() error {
+		err := handler.AddLivenessCheck(check, func() error {
 			return nil
 		})
+		assert.NoError(err)
 	}
 
 	for _, check := range []string{"ddd", "eee", "fff"} {
-		handler.AddLivenessCheck(check, func() error {
+		err := handler.AddLivenessCheck(check, func() error {
 			return fmt.Errorf("failing health check %q", check)
 		})
+		assert.NoError(err)
 	}
 
-	metricsHandler := prometheus.Handler()
+	metricsHandler := promhttp.Handler()
 	req, err := http.NewRequest("GET", "/metrics", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -73,10 +79,13 @@ test_healthcheck_status{check="fff"} 1
 }
 
 func TestNewMetricsHandlerEndpoints(t *testing.T) {
-	handler := NewMetricsHandler(prometheus.NewRegistry(), "test")
-	handler.AddReadinessCheck("fail", func() error {
+	assert := assert.New(t)
+
+	handler := handlers.NewMetricsHandler(prometheus.NewRegistry(), "test")
+	err := handler.AddReadinessCheck("fail", func() error {
 		return fmt.Errorf("failing readiness check")
 	})
+	assert.NoError(err)
 
 	tests := []struct {
 		name    string
@@ -113,11 +122,11 @@ func TestNewMetricsHandlerEndpoints(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			req, err := http.NewRequest("GET", tt.path, nil)
-			assert.NoError(t, err)
+			assert.NoError(err)
 
 			rr := httptest.NewRecorder()
 			tt.handler.ServeHTTP(rr, req)
-			assert.Equal(t, tt.expect, rr.Code, "%s: wrong status", tt.name)
+			assert.Equal(tt.expect, rr.Code, "%s: wrong status", tt.name)
 		})
 	}
 }

@@ -12,18 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package healthcheck
+package checks_test
 
 import (
 	"context"
+	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/karolhrdina/healthcheck/checks"
 )
 
 func TestAsync(t *testing.T) {
-	async := Async(func() error {
+	async := checks.Async(func() error {
 		time.Sleep(50 * time.Millisecond)
 		return nil
 	}, 1*time.Millisecond)
@@ -45,9 +48,9 @@ func TestAsyncWithContext(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// start an async check that counts how many times it was called
-	calls := 0
-	AsyncWithContext(ctx, func() error {
-		calls++
+	var calls uint64
+	checks.AsyncWithContext(ctx, func() error {
+		atomic.AddUint64(&calls, 1)
 		time.Sleep(1 * time.Millisecond)
 		return nil
 	}, 10*time.Millisecond)
@@ -59,5 +62,5 @@ func TestAsyncWithContext(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 
 	// make sure the check was only executed roughly once
-	assert.InDelta(t, calls, 1, 1)
+	assert.InDelta(t, atomic.LoadUint64(&calls), 1, 1)
 }
