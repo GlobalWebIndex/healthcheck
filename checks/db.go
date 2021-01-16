@@ -26,7 +26,7 @@ func DatabasePingCheck(database *sql.DB, timeout time.Duration) Check {
 // database using `SELECT 1` query execution.
 func DatabaseSelectCheck(client *sql.DB, timeout time.Duration) Check {
 	return func() error {
-		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
 
 		res, err := client.ExecContext(ctx, "SELECT 1")
