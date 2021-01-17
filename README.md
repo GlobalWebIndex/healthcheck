@@ -20,11 +20,11 @@ Healthcheck is a library for implementing Kubernetes [liveness and readiness](ht
 
 ## Usage
 
-See the [GoDoc examples](https://godoc.org/github.com/karolhrdina/healthcheck) for more detail.
+See the [GoDoc examples](https://godoc.org/github.com/GlobalWebIndex/healthcheck) for more detail.
 
- - Install with `go get` or your favorite Go dependency manager: `go get -u github.com/karolhrdina/healthcheck`
+ - Install with `go get` or your favorite Go dependency manager: `go get -u github.com/GlobalWebIndex/healthcheck`
 
- - Import the package: `import "github.com/karolhrdina/healthcheck/handlers"`
+ - Import the package: `import "github.com/GlobalWebIndex/healthcheck/handlers"`
 
  - Create a `handlers.Handler`:
    ```go

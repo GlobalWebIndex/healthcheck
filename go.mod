@@ -1,4 +1,4 @@
-module github.com/karolhrdina/healthcheck
+module github.com/GlobalWebIndex/healthcheck
 
 go 1.14
 

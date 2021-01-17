@@ -20,7 +20,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/karolhrdina/healthcheck/checks"
+	"github.com/GlobalWebIndex/healthcheck/checks"
 )
 
 // basicHandler is a basic Handler implementation.

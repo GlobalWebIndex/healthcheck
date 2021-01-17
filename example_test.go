@@ -25,8 +25,8 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 
-	"github.com/karolhrdina/healthcheck/checks"
-	"github.com/karolhrdina/healthcheck/handlers"
+	"github.com/GlobalWebIndex/healthcheck/checks"
+	"github.com/GlobalWebIndex/healthcheck/handlers"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

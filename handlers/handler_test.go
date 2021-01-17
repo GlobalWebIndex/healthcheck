@@ -22,7 +22,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/karolhrdina/healthcheck/handlers"
+	"github.com/GlobalWebIndex/healthcheck/handlers"
 )
 
 func TestNewHandler(t *testing.T) {

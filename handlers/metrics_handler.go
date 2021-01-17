@@ -17,7 +17,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/karolhrdina/healthcheck/checks"
+	"github.com/GlobalWebIndex/healthcheck/checks"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

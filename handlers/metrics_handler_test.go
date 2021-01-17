@@ -26,7 +26,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/karolhrdina/healthcheck/handlers"
+	"github.com/GlobalWebIndex/healthcheck/handlers"
 )
 
 func TestNewMetricsHandler(t *testing.T) {

@@ -20,7 +20,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/karolhrdina/healthcheck/checks"
+	"github.com/GlobalWebIndex/healthcheck/checks"
 )
 
 func TestTCPDialCheck(t *testing.T) {

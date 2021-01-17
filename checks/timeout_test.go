@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/karolhrdina/healthcheck/checks"
+	"github.com/GlobalWebIndex/healthcheck/checks"
 )
 
 func TestTimeout(t *testing.T) {
