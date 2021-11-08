@@ -3,24 +3,10 @@ package checks
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
 )
-
-// DatabasePingCheck returns a Check that validates connectivity to a
-// database/sql.DB using Ping().
-func DatabasePingCheck(database *sql.DB, timeout time.Duration) Check {
-	return func() error {
-		ctx, cancel := context.WithTimeout(context.Background(), timeout)
-		defer cancel()
-		if database == nil {
-			return fmt.Errorf("database is nil")
-		}
-		return database.PingContext(ctx)
-	}
-}
 
 // DatabaseSelectCheck returns a Check that validates connectivity to a
 // database using `SELECT 1` query execution.

@@ -77,7 +77,7 @@ func Example_database() {
 
 	// Add a readiness check to we don't receive requests unless we can reach
 	// the database with a ping in <1 second.
-	err := health.AddReadinessCheck("database", checks.DatabasePingCheck(database, 1*time.Second))
+	err := health.AddReadinessCheck("database", checks.DatabaseSelectCheck(database, 1*time.Second))
 	if err != nil {
 		panic("`health.AddReadinessCheck()` failed")
 	}
@@ -223,9 +223,10 @@ func dumpRequest(handler http.Handler, method string, path string) string {
 }
 
 func connectToDatabase() *sql.DB {
-	db, _, err := sqlmock.New()
+	db, mock, err := sqlmock.New()
 	if err != nil {
 		panic(err)
 	}
+	mock.ExpectExec("SELECT 1").WillReturnResult(sqlmock.NewResult(1, 1))
 	return db
 }

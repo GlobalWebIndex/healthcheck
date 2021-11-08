@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	_ "github.com/lib/pq"
+	_ "github.com/jackc/pgx/v4/stdlib"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
@@ -13,14 +13,6 @@ import (
 
 	"github.com/GlobalWebIndex/healthcheck/checks"
 )
-
-func TestDatabasePingCheck(t *testing.T) {
-	assert.Error(t, checks.DatabasePingCheck(nil, 1*time.Second)(), "nil DB should fail")
-
-	db, _, err := sqlmock.New()
-	assert.NoError(t, err)
-	assert.NoError(t, checks.DatabasePingCheck(db, 1*time.Second)(), "ping should succeed")
-}
 
 func TestDatabaseSelectCheck(t *testing.T) {
 	assert := assert.New(t)
